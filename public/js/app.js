@@ -9,28 +9,38 @@ $(function(){
 })
 
 const init = () => {
-    $(divTituloCard).html('Selecione seu serviço <i class="bi bi-scissors"></i>')
+    $(divTituloCard).html('Escolha seu serviço')
+
     $(divSelecionarServico).show()
     $(divSelecionarBarbeiro).hide()
     $(divHorariosBarbeiros).hide()
+
     $('#exampleInputPassword1').mask('(00) 00000-0000')
+
+    resetProfessionalBorder()
 }
 
-const selecionarBarbeiro = () => {
-    $(divTituloCard).html('Selecione seu professional <i class="bi bi-scissors"></i>')
+const selecionarServico = () => {
+    $(divTituloCard).html('Escolha seu professional')
     $(divSelecionarServico).hide()
     $(divSelecionarBarbeiro).show()
     $(divHorariosBarbeiros).hide()
     $(divMsgSelecioneUmBarbeiro).show()
 }
 
-const showHorarioBarbeiro = (element) => {
-    $('.border-primary').removeClass('border-primary');
-    $(element).addClass('border-primary')
+const selectProfessional = (element) => {
+    resetProfessionalBorder();
+    setProfessional(element)
+
     $(divHorariosBarbeiros).show()
     $(divMsgSelecioneUmBarbeiro).hide()
 }
 
+const setProfessional = (element) => {
+    $(element).addClass('border-dark')
+    $(element).addClass('border-2')
+}
 
-
-
+const resetProfessionalBorder = () => {
+    $('.border-dark').removeClass('border-dark');
+}
