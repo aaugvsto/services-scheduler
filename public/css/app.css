@@ -1,0 +1,17 @@
+.scrollable-text {
+    max-height: 80px;
+    overflow-y: auto;
+    scrollbar-width: none; 
+}
+
+.scrollable-vertical {
+    max-height: 80px;
+    overflow-x: auto;
+    scrollbar-width: none; 
+}
+
+.scroll-vertical {
+    height: 300px;
+    overflow-y: auto;
+    border: 1px solid #ccc;
+  }
