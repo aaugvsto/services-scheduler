@@ -1,14 +1,20 @@
 var divProfessionalsTabContent = "#professional-tab-content"
 var divServicesTabContent= "#services-tab-content"
 var divCheckoutTabContent = "#checkout-tab-content"
+var divDateTabContent = "#date-tab-content"
+
 var divServicesContainer = "#service-list-container"
 var divProfessionalContainer = "#professionals-container"
+var divDatesContainer = "#dates-container"
+
 var divTituloCard = "#tituloCard"
 var divHorariosBarbeiros = "#horariosBarbeiro"
 var divMsgSelecioneUmBarbeiro = "#msgSelecioneBarbeiro"
+
 var divTabService = "#tab-services"
 var divTabProfessionals = "#tab-professionals"
 var divTabCheckout = "#tab-checkout"
+var divTabDate = "#tab-date";
 
 $(function(){
     init()
@@ -16,66 +22,82 @@ $(function(){
 })
 
 const init = () => {
-    handlerSelectTab(1);
-
+    handlerSelectTab(1)
+    handlerUnselectTab(2)
+    handlerUnselectTab(3)
+    handlerUnselectTab(4)
     $('#exampleInputPassword1').mask('(00) 00000-0000')
-
-    resetProfessionalBorder()
+    localStorage.clear()
 }
 
-const setService = (id) => {
+const setProfessional = (id) => {
     handlerSelectTab(2)
     handlerUnselectTab(1)
+    handlerUnselectTab(3)
+    handlerUnselectTab(4)
 
-    $(divTabService).on('click', function () {
+    $(divTabProfessionals).on('click', function(){
         handlerSelectTab(1)
         handlerUnselectTab(2)
         handlerUnselectTab(3)
+        handlerUnselectTab(4)
     })
 
-    $(divTabProfessionals).on('click', function () {
+    $(divTabService).on('click', function(){
         handlerSelectTab(2)
         handlerUnselectTab(1)
         handlerUnselectTab(3)
+        handlerUnselectTab(4)
     })
 
+    $(divTabService).css('cursor', 'pointer')
+    $(divTabProfessionals).css('cursor', 'pointer')
 
-    $(divTabService).css("cursor", "pointer")
-    $(divTabProfessionals).css("cursor", "pointer")
-
-    localStorage.setItem('serviceId', id)
-}
-
-const selectProfessional = (element, id) => {
-    resetProfessionalBorder();
-    setProfessional(element)
-
-    $(divHorariosBarbeiros).show()
-    $(divMsgSelecioneUmBarbeiro).hide()
 
     localStorage.setItem('professionalId', id)
 }
 
-const setProfessional = (element) => {
-    $(element).addClass('border-dark')
-    $(element).addClass('border-2')
+const setService = (id) => {
+    handlerSelectTab(3)
+    handlerUnselectTab(1)
+    handlerUnselectTab(2)
+    handlerUnselectTab(4)
+
+    $(divTabDate).on('click', function(){
+        handlerSelectTab(3)
+        handlerUnselectTab(1)
+        handlerUnselectTab(2)
+        handlerUnselectTab(4)
+
+        $(divHorariosBarbeiros).show()
+    })
+
+    $(divTabDate).css('cursor', 'pointer')
+
+    localStorage.setItem('serviceId', id)
+}
+
+const setDate = () => {
+    $(divMsgSelecioneUmBarbeiro).hide()
+    $(divHorariosBarbeiros).show()
 }
 
 const setHorario = () => {
-    handlerSelectTab(3)
+    handlerSelectTab(4)
+
+    handlerUnselectTab(1)
     handlerUnselectTab(2)
+    handlerUnselectTab(3)
 
     $(divTabCheckout).on("click", function(){
-        handlerSelectTab(3)
-        handlerUnselectTab(2)
+        handlerSelectTab(4)
+
         handlerUnselectTab(1)
+        handlerUnselectTab(2)
+        handlerUnselectTab(3)
     })
 
     $(divTabCheckout).css("cursor", "pointer")
-}
-
-const resetProfessionalBorder = () => {
-    $('.border-dark').removeClass('border-dark');
 }
 
 const loadContent = () => {
@@ -84,6 +106,8 @@ const loadContent = () => {
         const professionals = res.professionals;
         
         services.forEach(service => {
+            let btnId = `btn-sv-${service.id}-set`
+
             $(divServicesContainer).append(`
                 <div class="row">
                     <div class="col-2 d-flex justify-content-center align-items-center">
@@ -106,65 +130,112 @@ const loadContent = () => {
                             })}</h6>
                         </div>
                         <div>
-                            <button class="btn btn-outline-dark" onclick="setService(${service.id})">Agendar</button>
+                            <button id=${btnId} class="btn btn-outline-dark">Agendar</button>
                         </div>
                     </div>
                 </div>
                 <hr/>
             `)
+
+            $('#' + btnId).on('click', function (){
+                setService(service.id)
+            })
         });
 
         professionals.forEach(professional => {
+            let btnId = `btn-${professional.id}-set`
+
             $(divProfessionalContainer).append(`
-                <div class="me-1" style="min-width: 80px; cursor: pointer;">
-                    <div class="d-flex flex-column border rounded p-2" onclick="selectProfessional(this, ${professional.id})">
-                        <div>
-                            <img src="corte.jpg" height="64" width="64" class="rounded-circle">
+                <div class="row m-0 p-0">
+                    <div class="col-1 d-flex justify-content-start align-items-center">
+                        <img src="corte.jpg" height="64" width="64" class="rounded">
+                        <div class="ms-2">
+                            <strong>${professional.name}</strong>
                         </div>
-                        <div class="w-100 text-center">
-                            <span class="fw-bold">${professional.name}</span>
+                    </div>
+                    <div class="col-11 d-flex justify-content-end align-items-center">
+                        <div>
+                            <button id=${btnId} class="btn btn-outline-dark">Escolher</button>
                         </div>
                     </div>
                 </div>
+                <hr/>
             `)
+
+            $("#" + btnId).on('click', function() {
+                setProfessional(professional.id)
+            })
         })
+
+        for(let i = 0; i <= 9; i++){
+            let idElement = 'date-element-' + i;
+
+            $(divDatesContainer).append(`
+                    <div style="min-width: 80px; cursor: pointer;">
+                        <div id=${idElement} class="border rounded p-2">
+                            <div class="w-100 d-flex text-center justify-content-center flex-column"
+                                style="min-height: 40px;">
+                                <span>Qui</span>
+                                <span class="fw-bold">24</span>
+                                <span class="fw-bold">Julho</span>
+                            </div>
+                        </div>
+                    </div>
+                `)
+
+            $('#' + idElement).on('click', function(){
+                setDate()
+                resetSelectedDate()
+
+                $('#' + idElement).addClass('border-dark')
+            })
+        }
     })
+}
+
+const resetSelectedDate = () => {
+    $('.border-dark').removeClass('border-dark')
 }
 
 const handlerSelectTab = (tabId) => {
     let div = getDivTab(tabId)
     
     $(div).removeClass('bg-dark')
-    $(div).addClass('bg-light')
+    $(div).addClass('bg-white')
     $(div).addClass('text-dark')
     $(div).removeClass('text-light')
 
     switch(tabId) {
         case 1:
-            $(divServicesTabContent).show()
-            $(divProfessionalsTabContent).hide()
+            $(divProfessionalsTabContent).show()
+
+            $(divServicesTabContent).hide()
             $(divHorariosBarbeiros).hide()
             $(divCheckoutTabContent).hide()
+            $(divDateTabContent).hide()
             break;
         case 2:
-            $(divServicesTabContent).hide()
-            $(divProfessionalsTabContent).show()
+            $(divServicesTabContent).show()
+
+            $(divProfessionalsTabContent).hide()
             $(divCheckoutTabContent).hide()
             $(divHorariosBarbeiros).hide()
-
-            hasSelectedBarber = localStorage.getItem('professionalId')
-            if(hasSelectedBarber){
-                $(divHorariosBarbeiros).show()
-            }
-
+            $(divDateTabContent).hide()
             break;
         case 3:
+            $(divDateTabContent).show()
+            
+            $(divProfessionalsTabContent).hide()
+            $(divCheckoutTabContent).hide()
             $(divServicesTabContent).hide()
+            break;
+        case 4:
+            $(divCheckoutTabContent).show()
+
+            $(divDateTabContent).hide()
             $(divProfessionalsTabContent).hide()
             $(divHorariosBarbeiros).hide()
-            $(divMsgSelecioneUmBarbeiro).hide()
-            $(divCheckoutTabContent).show()
-            break;
+            $(divServicesTabContent).hide()
     }
 }
 
@@ -172,7 +243,7 @@ const handlerUnselectTab = (tabId) => {
     let div = getDivTab(tabId)
 
     $(div).addClass('bg-dark')
-    $(div).removeClass('bg-light')
+    $(div).removeClass('bg-white')
     $(div).removeClass('text-dark')
     $(div).addClass('text-light')
 }
@@ -180,10 +251,12 @@ const handlerUnselectTab = (tabId) => {
 const getDivTab = (tabId) => {
     switch(tabId) {
         case 1:
-            return divTabService;
-        case 2:
             return divTabProfessionals;
+        case 2:
+            return divTabService;
         case 3:
+            return divTabDate;
+        case 4:
             return divTabCheckout;
         default:
             return '';
