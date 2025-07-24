@@ -27,6 +27,22 @@ const setService = (id) => {
     handlerSelectTab(2)
     handlerUnselectTab(1)
 
+    $(divTabService).on('click', function () {
+        handlerSelectTab(1)
+        handlerUnselectTab(2)
+        handlerUnselectTab(3)
+    })
+
+    $(divTabProfessionals).on('click', function () {
+        handlerSelectTab(2)
+        handlerUnselectTab(1)
+        handlerUnselectTab(3)
+    })
+
+
+    $(divTabService).css("cursor", "pointer")
+    $(divTabProfessionals).css("cursor", "pointer")
+
     localStorage.setItem('serviceId', id)
 }
 
@@ -37,7 +53,7 @@ const selectProfessional = (element, id) => {
     $(divHorariosBarbeiros).show()
     $(divMsgSelecioneUmBarbeiro).hide()
 
-    localStorage.setItem('setProfessionalId', id)
+    localStorage.setItem('professionalId', id)
 }
 
 const setProfessional = (element) => {
@@ -48,6 +64,14 @@ const setProfessional = (element) => {
 const setHorario = () => {
     handlerSelectTab(3)
     handlerUnselectTab(2)
+
+    $(divTabCheckout).on("click", function(){
+        handlerSelectTab(3)
+        handlerUnselectTab(2)
+        handlerUnselectTab(1)
+    })
+
+    $(divTabCheckout).css("cursor", "pointer")
 }
 
 const resetProfessionalBorder = () => {
@@ -125,8 +149,14 @@ const handlerSelectTab = (tabId) => {
         case 2:
             $(divServicesTabContent).hide()
             $(divProfessionalsTabContent).show()
-            $(divHorariosBarbeiros).hide()
             $(divCheckoutTabContent).hide()
+            $(divHorariosBarbeiros).hide()
+
+            hasSelectedBarber = localStorage.getItem('professionalId')
+            if(hasSelectedBarber){
+                $(divHorariosBarbeiros).show()
+            }
+
             break;
         case 3:
             $(divServicesTabContent).hide()
