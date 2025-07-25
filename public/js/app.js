@@ -31,6 +31,11 @@ const init = () => {
     handlerUnselectTab(2)
     handlerUnselectTab(3)
     handlerUnselectTab(4)
+    
+    resetTabClick(1)
+    resetTabClick(2)
+    resetTabClick(3)
+    resetTabClick(4)
 
     $('#iptWppPhone').mask('(00) 00000-0000')
 
@@ -38,10 +43,20 @@ const init = () => {
 }
 
 const setProfessional = (professional) => {
+    sessionStorage.clear()
+    resetSelectedDate()
+    $(divMsgSelecioneUmBarbeiro).show()
+
+    sessionStorage.setItem('professional.code', professional.id)
+    sessionStorage.setItem('professional.name', professional.name)
+
     handlerSelectTab(2)
     handlerUnselectTab(1)
     handlerUnselectTab(3)
     handlerUnselectTab(4)
+
+    resetTabClick(3)
+    resetTabClick(4)
 
     $(divTabProfessionals).on('click', function(){
         handlerSelectTab(1)
@@ -59,9 +74,6 @@ const setProfessional = (professional) => {
 
     $(divTabService).css('cursor', 'pointer')
     $(divTabProfessionals).css('cursor', 'pointer')
-
-    sessionStorage.setItem('professional.code', professional.id)
-    sessionStorage.setItem('professional.name', professional.name)
 }
 
 const setService = (service) => {
@@ -74,6 +86,8 @@ const setService = (service) => {
     handlerUnselectTab(1)
     handlerUnselectTab(2)
     handlerUnselectTab(4)
+
+    resetTabClick(4)
 
     $(divTabDate).on('click', function(){
         handlerSelectTab(3)
@@ -347,5 +361,29 @@ const getDivTab = (tabId) => {
             return divTabCheckout;
         default:
             return '';
+    }
+}
+
+const resetTabClick = (tabId) => {
+    switch(tabId){
+        case 1:
+            $(divTabProfessionals).off('click').on('click', function (){})
+            $(divTabProfessionals).css('cursor', 'default')
+            break;
+            
+        case 2:
+            $(divTabService).off('click').on('click', function (){})
+            $(divTabService).css('cursor', 'default')
+            break;
+            
+        case 3:
+            $(divTabDate).off('click').on('click', function (){})
+            $(divTabDate).css('cursor', 'default')
+            break;
+            
+        case 4:
+            $(divTabCheckout).off('click').on('click', function (){})
+            $(divTabCheckout).css('cursor', 'default')
+            break;
     }
 }
