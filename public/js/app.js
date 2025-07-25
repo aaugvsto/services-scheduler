@@ -1,20 +1,25 @@
-var divProfessionalsTabContent = "#professional-tab-content"
-var divServicesTabContent= "#services-tab-content"
-var divCheckoutTabContent = "#checkout-tab-content"
-var divDateTabContent = "#date-tab-content"
+const divProfessionalsTabContent = "#professional-tab-content"
+const divServicesTabContent= "#services-tab-content"
+const divCheckoutTabContent = "#checkout-tab-content"
+const divDateTabContent = "#date-tab-content"
 
-var divServicesContainer = "#service-list-container"
-var divProfessionalContainer = "#professionals-container"
-var divDatesContainer = "#dates-container"
+const divServicesContainer = "#service-list-container"
+const divProfessionalContainer = "#professionals-container"
+const divDatesContainer = "#dates-container"
 
-var divTituloCard = "#tituloCard"
-var divHorariosBarbeiros = "#horariosBarbeiro"
-var divMsgSelecioneUmBarbeiro = "#msgSelecioneBarbeiro"
+const divTituloCard = "#tituloCard"
+const divHorariosBarbeiros = "#horarios"
+const divMsgSelecioneUmBarbeiro = "#msgSelecioneBarbeiro"
 
-var divTabService = "#tab-services"
-var divTabProfessionals = "#tab-professionals"
-var divTabCheckout = "#tab-checkout"
-var divTabDate = "#tab-date";
+const divTabService = "#tab-services"
+const divTabProfessionals = "#tab-professionals"
+const divTabCheckout = "#tab-checkout"
+const divTabDate = "#tab-date";
+
+const divCheckoutProfessionalName = "#professional-name"
+const divCheckoutDate = "#schedule-date"
+const divCheckoutServices = "#services"
+const divCheckouTotalValue = "#total-value"
 
 $(function(){
     init()
@@ -26,11 +31,13 @@ const init = () => {
     handlerUnselectTab(2)
     handlerUnselectTab(3)
     handlerUnselectTab(4)
-    $('#exampleInputPassword1').mask('(00) 00000-0000')
-    localStorage.clear()
+
+    $('#iptWppPhone').mask('(00) 00000-0000')
+
+    sessionStorage.clear()
 }
 
-const setProfessional = (id) => {
+const setProfessional = (professional) => {
     handlerSelectTab(2)
     handlerUnselectTab(1)
     handlerUnselectTab(3)
@@ -53,11 +60,16 @@ const setProfessional = (id) => {
     $(divTabService).css('cursor', 'pointer')
     $(divTabProfessionals).css('cursor', 'pointer')
 
-
-    localStorage.setItem('professionalId', id)
+    sessionStorage.setItem('professional.code', professional.id)
+    sessionStorage.setItem('professional.name', professional.name)
 }
 
-const setService = (id) => {
+const setService = (service) => {
+    sessionStorage.setItem('service.code', service.id)
+    sessionStorage.setItem('service.name', service.name)
+    sessionStorage.setItem('service.price', service.price)
+    sessionStorage.setItem('service.currency', service.currency)
+
     handlerSelectTab(3)
     handlerUnselectTab(1)
     handlerUnselectTab(2)
@@ -69,20 +81,32 @@ const setService = (id) => {
         handlerUnselectTab(2)
         handlerUnselectTab(4)
 
-        $(divHorariosBarbeiros).show()
+        if(sessionStorage.getItem('schedule.day')){
+            $(divHorariosBarbeiros).show()
+            return
+        }
+
+        $(divHorariosBarbeiros).hide()
     })
 
     $(divTabDate).css('cursor', 'pointer')
-
-    localStorage.setItem('serviceId', id)
 }
 
-const setDate = () => {
+const setDate = (date) => {
     $(divMsgSelecioneUmBarbeiro).hide()
     $(divHorariosBarbeiros).show()
+
+    sessionStorage.setItem('schedule.day', date.day)
+    sessionStorage.setItem('schedule.month', date.month)
 }
 
-const setHorario = () => {
+const setHorario = (time) => {
+    sessionStorage.setItem('schedule.hour', time.hour)
+    sessionStorage.setItem('schedule.minutes', time.minutes)
+
+    $(divTabCheckout).css("cursor", "pointer")
+
+
     handlerSelectTab(4)
 
     handlerUnselectTab(1)
@@ -95,9 +119,30 @@ const setHorario = () => {
         handlerUnselectTab(1)
         handlerUnselectTab(2)
         handlerUnselectTab(3)
+        
+        handlerCheckoutPage()
     })
 
-    $(divTabCheckout).css("cursor", "pointer")
+    handlerCheckoutPage()
+}
+
+const handlerCheckoutPage = () => {
+    $(divCheckoutProfessionalName).html(formatLi(sessionStorage.getItem("professional.name")))
+
+    let formatedDate = sessionStorage.getItem("schedule.day") + '/' + sessionStorage.getItem("schedule.month") + " - " + sessionStorage.getItem("schedule.hour") + ':' + sessionStorage.getItem("schedule.minutes")
+    $(divCheckoutDate).html(formatLi(formatedDate))
+
+    $(divCheckoutServices).html(formatLi(sessionStorage.getItem("service.name")))
+
+    let formatedTotalValue = Number(sessionStorage.getItem("service.price")).toLocaleString('pt-BR', {
+                                style: 'currency', 
+                                currency: sessionStorage.getItem("service.currency")
+                            })
+    $(divCheckouTotalValue).html(formatLi(formatedTotalValue))
+}
+
+const formatLi = (str) => {
+    return `<li>${str}</li>`
 }
 
 const loadContent = () => {
@@ -138,7 +183,7 @@ const loadContent = () => {
             `)
 
             $('#' + btnId).on('click', function (){
-                setService(service.id)
+                setService(service)
             })
         });
 
@@ -163,32 +208,68 @@ const loadContent = () => {
             `)
 
             $("#" + btnId).on('click', function() {
-                setProfessional(professional.id)
+                setProfessional(professional)
             })
         })
 
-        for(let i = 0; i <= 9; i++){
+        const initialDate = new Date();
+        for(let i = 0; i <= 30; i++){
             let idElement = 'date-element-' + i;
+            let currentDate = new Date(initialDate); // copia a data inicial
+            currentDate.setDate(initialDate.getDate() + i);
+
+            // Formatação dos dados
+            const diasSemana = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
+            let diaSemana = diasSemana[currentDate.getDay()];
+            let dia = currentDate.getDate();
+            let mes = currentDate.toLocaleString('pt-BR', { month: 'long' });
+            mes = mes.charAt(0).toUpperCase() + mes.slice(1);
 
             $(divDatesContainer).append(`
-                    <div style="min-width: 80px; cursor: pointer;">
-                        <div id=${idElement} class="border rounded p-2">
-                            <div class="w-100 d-flex text-center justify-content-center flex-column"
-                                style="min-height: 40px;">
-                                <span>Qui</span>
-                                <span class="fw-bold">24</span>
-                                <span class="fw-bold">Julho</span>
+                <div style="min-width: 80px; cursor: pointer;">
+                    <div id=${idElement} class="border rounded p-2">
+                        <div class="w-100 d-flex text-center justify-content-center flex-column"
+                            style="min-height: 40px;">
+                            <span>${diaSemana}</span>
+                            <span class="fw-bold">${dia}</span>
+                            <span class="fw-bold">${mes}</span>
+                        </div>
+                    </div>
+                </div>
+            `);
+
+            $('#' + idElement).on('click', function(){
+                setDate({ day: dia, month: currentDate.getMonth() + 1 })
+                resetSelectedDate()
+                $('#' + idElement).addClass('border-dark')
+            });
+        }
+
+        for(let i = 0; i <= 3; i++){
+            $(divHorariosBarbeiros).append(`
+                    <div class="col-12 mb-2">
+                        <div class="row">
+                            <div class="col">
+                                <button  type="button"
+                                    class="btn btn-outline-dark w-100"
+                                    onClick="setHorario({ hour: '10', minutes: '00'})"
+                                    >10:00</button>
+                            </div>
+                            <div class="col">
+                                <button  type="button"
+                                    class="btn btn-outline-dark w-100"
+                                    onClick="setHorario({ hour: '10', minutes: '00'})"
+                                >10:00</button>
+                            </div>
+                            <div class="col">
+                                <button type="button"
+                                class="btn btn-outline-dark w-100"
+                                onClick="setHorario({ hour: '10', minutes: '00'})"
+                                >10:00</button>
                             </div>
                         </div>
                     </div>
                 `)
-
-            $('#' + idElement).on('click', function(){
-                setDate()
-                resetSelectedDate()
-
-                $('#' + idElement).addClass('border-dark')
-            })
         }
     })
 }
@@ -224,10 +305,16 @@ const handlerSelectTab = (tabId) => {
             break;
         case 3:
             $(divDateTabContent).show()
-            
+
             $(divProfessionalsTabContent).hide()
             $(divCheckoutTabContent).hide()
             $(divServicesTabContent).hide()
+            $(divHorariosBarbeiros).hide()
+
+            if(sessionStorage.getItem('schedule.day')){
+                $(divHorariosBarbeiros).show()
+            }
+
             break;
         case 4:
             $(divCheckoutTabContent).show()
